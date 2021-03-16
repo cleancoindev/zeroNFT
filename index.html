@@ -1,0 +1,329 @@
+
+<!doctype html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Treasure Pets - a Web3 Game by Spencer Yip and Conductive Research">
+    <meta name="author" content="Spencer Yip and Conductive Research">
+    <title>Treasure Pets - a Web3 Game</title>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.4/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function(){
+
+      
+        var app = new Vue({
+          el: '#app',
+          data: {
+            isShowGame: false,
+            isShowAssets: true,
+            consoleClass: null,
+            consoleText: 'Welcome to Treasure Pets and awesome NFT game',
+            walletPrompt: 'Select Wallet',
+            walletAddress: 'Please click connect to launch Metamask 👉',
+            walletAssets: false,
+            btnConnectWallet: '#select-wallet',
+            web3: new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/v3/ef5cffbff1544fcb81e65f2c4378b0ac")),
+            walletBalance: false,
+
+          },
+          methods: {
+
+            consoleWriter: function(text) {
+              this.consoleText = text
+
+            },
+            
+            round: function(value, decimals) {
+              return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+            },
+            WeiToEth: function(wei) {
+              return wei*0.000000000000000001
+            },
+
+            isMetaMaskInstalled: function() {
+              const { ethereum } = window
+              return Boolean(ethereum && ethereum.isMetaMask)
+            },
+
+        
+
+
+            getWalletAssets: function() {
+              let _this = this
+
+              //TODO: add users wallet address instead of this hardcoded one
+              var url =  "https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x3753FA57980fd180655c281158E428Ca994d6dfA"
+            
+              axios.get(url).then(function (response) {
+                let data = response.data
+                console.log('Opensea response:')
+                //console.log(data)
+
+                //console.log(response)
+                _this.walletAssets = data.assets
+
+
+                if(_this.walletAssets.length > 0)
+                {
+                  _this.consoleWriter(_this.walletAssets.length + ' NFTs found in your wallet')
+                  console.log('## Assets:')
+                  console.log(data.assets)
+                  _this.isShowAssets = true
+                }
+
+                else
+                  _this.consoleWriter('😞... Sorry, no NFTs found. Maybe go get some?')
+
+               
+
+              })
+              .catch(function (error) {
+                _this.consoleWriter('.. there was an error accessing NFTs: ' + error)
+                console.log('## ERROR')
+                console.log(error)
+              })
+
+
+            },
+
+            getBalance: function(address) {
+              let url =  "https://api.etherscan.io/" + "api?module=account&action=balance&address=" + address + "&tag=latest&apikey=K8BKKCIBTPMY9DT8RIXETN3VWHNE2DAGH7"
+
+              let _this = this
+              axios.get(url)
+              .then(function (response) {
+                let data = response.data
+                console.log('Etherscan response:')
+                console.log(data)
+                _this.walletBalance = _this.round(_this.WeiToEth(data.result),5)
+                _this.walletPrompt = 'Balance: ' + _this.walletBalance
+                _this.consoleWriter('Wallet found 👉 ' + _this.walletAddress + ' w/ balance: ' + _this.walletBalance)
+
+                setTimeout(()=>{
+                  _this.consoleWriter('Searching for NFTs... 🔍🧸')
+                  _this.getWalletAssets()
+              },1500)
+
+
+
+                console.log(response)
+              })
+              .catch(function (error) {
+                console.log('## ERROR')
+                console.log(error)
+              })
+      
+             
+            },
+            getWallet: function() {
+              ethereum.request({ method: 'eth_requestAccounts' }).then((accounts)=>{
+                console.log(accounts)
+                this.consoleWriter('...Retrieving your wallet')
+                this.walletAddress = accounts[0]
+                console.log('Wallet address: ' + this.walletAddress)
+                this.walletBalance = this.getBalance(this.walletAddress)
+
+              })
+              
+            },
+
+            loadNFT: function(contract_id, token_id) {
+              console.log('Contract ID: ' + contract_id + 'Token ID: ' + token_id)
+              console.log('Do something here Spencer')
+
+              this.consoleWriter('Loading contract address: ' + contract_id + ' with token ID: ' + token_id)
+              this.isShowAssets = false
+              this.isShowGame = true
+
+            }
+
+
+
+          },
+
+          mounted() {
+
+            if(this.isMetaMaskInstalled)
+            {
+              console.log('You have Metamask installed!')
+              this.consoleWriter('Congrats, you have Metamask installed')
+            } else {
+              console.log('Metamask not installed!')
+              this.consoleWriter('Yikes. Metmask is required to play.')
+            }
+          }
+        })
+
+      }); 
+    </script>
+
+    
+
+
+    <meta name="theme-color" content="#7952b3"/>
+
+
+    <style>
+
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      #console {
+        background-color: black;
+        background-image: radial-gradient(
+          rgba(0, 70, 0, 0.75), black 120%
+        );
+        height: 35px;
+        line-height:20px;
+        margin-left: 10px;
+        weight: normal;
+        margin: 0;
+        overflow: hidden;
+        padding: 10px;
+        color: white;
+        font: 0.9rem Inconsolata, monospace;
+        text-shadow: 0 0 5px #C8C8C8;
+        &::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 35px;
+          background: repeating-linear-gradient(
+            0deg,
+            rgba(black, 0.15),
+            rgba(black, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+          );
+          pointer-events: none;
+        }
+        
+      }
+
+      #console strong {
+         height: 35px;
+        line-height:20px;
+        margin-left:15px;
+        overflow: hidden;
+         animation: 
+          typing 1.5s steps(40, end),
+          blink-caret .75s step-end infinite;
+          border-right: .15em solid orange;
+         white-space: nowrap;
+         letter-spacing: .05em;
+      }
+
+
+
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+  </head>
+  <body class="d-flex flex-column h-100">
+    <div id="app">
+    
+      <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">🐹 Treasure Pets</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+              <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+              </ul>
+              <span style="margin-right:50px; color:#c0c0c0;">
+                <strong class="text-white">Wallet: </strong>
+                 {{walletAddress}}
+              </span>
+              <button v-on:click="getWallet" class="nav-link btn btn-primary" id="select-wallet" href="#" style="color:#fff;">
+                <img src="https://cdn4.iconfinder.com/data/icons/cryptocurrency-vanilla-coins/90/Coin-ETH-Vanilla-128.png" border="0" width="25" height="25" style="filter: brightness(0) invert(1);">
+              {{walletPrompt}}</button>
+
+              
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Begin page content -->
+      <main class="flex-shrink-0" style="padding-top:35px;">
+        <div class="container">
+          <span class="mt-5 d-flex" id="console" >$ <strong :class="consoleClass" ref="console">{{consoleText}}</strong></span>
+          <p class="lead">
+            <div class="container" id="game" v-if="isShowGame">
+              <svg class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Game Placeholder</title><rect width="100%" height="100%" fill="#868e96"/><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Game Placeholder</text></svg>
+
+
+            </div>
+            <div class="container" id="walletAssets" v-if="isShowAssets && walletAssets">
+
+
+
+               <div class="row">
+
+
+                  <div class="col-sm"  v-for="(asset, index) in walletAssets">
+                    <div class="card" style="width: 12.3rem;">
+                      <img :src="asset.image_original_url" onload="this.style.display=''"  class="card-img-top" style="display:none;max-width:280px; max-height:300px; overflow:hidden" :alt="asset.name">
+                      
+                      <div class="card-body" style="padding:3px !important;">
+                        <h5 class="card-title" style="font-size:1em">{{asset.name}}</h5>
+                        <p class="card-text"   style="font-size:.5em;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;max-width: 75ch;">{{asset.description}}</p>
+                        <div class="btn-group-sm me-2" role="group" aria-label="NFT Controls">
+                            <a href="#" v-on:click="loadNFT(asset.asset_contract.address,asset.token_id)" type="button" class="btn btn-primary">Use NFT</a>
+                            <a :href="asset.perma_link" target="_blank" type="button" class="btn btn-outline-primary" alt="View on Opensea.io">🛳</a>
+                            <a :href="'https://www.etherscan.io/address/' + asset.asset_contract.address" target="_blank" type="button" class="btn btn-outline-primary" alt="View on Etherscan.io">🔎</a>
+                              <a :href="asset.collection.external_url" target="_blank">
+                                <img :src="asset.collection.image_url"   onload="this.style.display=''"  :alt="asset.collection.name" style="display:none;max-width:30px !important; max-height:30px  !important; border:1px #c0c0c0 solid; border-radius:100px;"/>
+                              </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+             
+
+          </p>
+        </div>
+      </main>
+
+      <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+          <span class="text-muted">© 2021 Treasure Pets, a Web3 game</span>
+        </div>
+      </footer>
+    </div>
+  
+
+      
+  </body>
+</html>
+
