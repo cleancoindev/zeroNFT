@@ -58,7 +58,7 @@
             getWalletAssets: function() {
               let _this = this
 
-              var url =  "https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=" + this.walletAddress
+              var url =  "https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x3753FA57980fd180655c281158E428Ca994d6dfA"
             
               axios.get(url).then(function (response) {
                 let data = response.data
