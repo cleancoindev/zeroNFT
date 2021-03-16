@@ -6,6 +6,7 @@
 * Grab and display wallet NFTs
 * Select NFT and pass contract address and token ID
 
+![alt text](https://github.com/paulpierre/zeroNFT/blob/main/demo.png?raw=true "Zero NFT Demo")
 
 To run, go to the same directory and run: ` python -m SimpleHTTPServer 8000`
 
