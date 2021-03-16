@@ -1,6 +1,8 @@
 # zeroNFT
 ## NFT game boilerplate code with simple UI
 
+Play with demo here: [https://paulpierre.github.io/zeroNFT/demo.html](https://paulpierre.github.io/zeroNFT/demo.html)
+
 * Simple one-file
 * Interface with Metamask to grab wallet address
 * Grab and display wallet NFTs
@@ -12,4 +14,4 @@ To run, go to the same directory and run: ` python -m SimpleHTTPServer 8000`
 
 Web3 code will not run due to security purposes unless being served via HTTP(S)
 
-@paulpierre
+[@paulpierre](https://www.twitter.com/paulpierre)
